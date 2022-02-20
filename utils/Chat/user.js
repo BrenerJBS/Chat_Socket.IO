@@ -1,8 +1,8 @@
 let users = [];
 
-exports.addUser = ({ id, name, room }) => {
-  if (!name || !room) return { error: "name and room required." };
-  const user = { id, name, room };
+exports.addUser = ({ id, name, room, userId }) => {
+  if (!name || !room || !userId) return { error: "name and room required." };
+  const user = { id, name, room, userId };
 
   users.push(user);
 

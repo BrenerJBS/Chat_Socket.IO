@@ -19,13 +19,13 @@ const io = socketIO(server, {cors: {
 }});
 
 io.on("connection", (socket) => {
-  socket.on("join", ({ name, room }, callBack) => {
-    const { user, error } = addUser({ id: socket.id, name, room });
+  socket.on("join", ({ name, room, userId }, callBack) => {
+    const { user, error } = addUser({ id: socket.id, name, room, userId });
     if (error) return callBack(error);
     console.log("socket.id = " + socket.id)
     console.log("name = " + user.name)
     console.log("room = " + user.room)
-
+    console.log("userId = " + user.userId)
     socket.join(user.room);
     /*socket.emit("message", {
       user: "Admin",
@@ -34,13 +34,14 @@ io.on("connection", (socket) => {
 
     socket.broadcast
       .to(user.room)
-      .emit("message", { user: "Onledu", text: `${user.name} esta online!` });
+      .emit("welcome", { user: "Admin", text: `${user.name} está online!` });
     callBack(null);
  
     socket.on("sendMessage", ({ message }) => {
-      addMessage(user.room, user.name, message);
+      addMessage(user.room, user.name, message, userId);
       io.to(user.room).emit("message", {
         user: user.name,
+        userId: user.userId,
         text: message, 
       });
     });
@@ -50,7 +51,7 @@ io.on("connection", (socket) => {
     console.log(user);
     io.to(user.room).emit("message", {
       user: "Admin",
-      text: `${user.name} just left the room`,
+      text: `${user.name} saiu.`,
     });
     socket.leave(user.room);
     console.log("A disconnection has been made");
