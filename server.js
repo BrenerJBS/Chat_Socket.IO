@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 4000;
 const INDEX = '/index.html';
 
 const app = express()
+app.use(cors())
+
 
 
 const server = express()
