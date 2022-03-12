@@ -1,11 +1,15 @@
 require('dotenv').config()
 const express = require('express');
+var cors = require('cors')
 const socketIO = require('socket.io');
 const { addUser, removeUser } = require("./utils/Chat/user");
-const { addMessage} = require("./utils/Chat/messages");
+const { addMessage, getMessagesInRoom} = require("./utils/Chat/messages");
 
 const PORT = process.env.PORT || 4000;
 const INDEX = '/index.html';
+
+const app = express()
+
 
 const server = express()
   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
@@ -56,4 +60,12 @@ io.on("connection", (socket) => {
     socket.leave(user.room);
     console.log("A disconnection has been made");
   });
+
+});
+
+
+app.get('/rooms/:roomId/messages', (req, res) => {
+  const messages = getMessagesInRoom(req.params.roomId);
+  console.log(messages)
+  return res.json({ messages });
 });
