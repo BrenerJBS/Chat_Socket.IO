@@ -3,7 +3,7 @@ var uuid = require("uuid");
 const messages = [];
 
 const addMessage = (room, name, message, userId) => {
-  console.log(message)
+  //console.log(message)
   const msg = { id: uuid.v4(), room, name, message, userId };
   messages.push(msg);  
 }; 
