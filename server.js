@@ -1,11 +1,25 @@
 require('dotenv').config()
 const express = require('express');
+const cors = require("cors");
 const socketIO = require('socket.io');
 const { addUser, removeUser } = require("./utils/Chat/user");
-const { addMessage} = require("./utils/Chat/messages");
+const { addMessage, getMessagesInRoom} = require("./utils/Chat/messages");
+
+const app = express();
+app.use(cors());
 
 const PORT = process.env.PORT || 4000;
 const INDEX = '/index.html';
+
+app.get("/rooms/:roomId/messages", (req, res) => {
+  const messages = getMessagesInRoom(req.params.roomId);
+  return res.json({ messages });
+});
+
+app.listen(5000, () => {
+  // perform a database connection when server starts  
+  console.log(`Server is running on port: ${PORT}`);
+});
 
 const server = express()
   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
@@ -34,7 +48,7 @@ io.on("connection", (socket) => {
 
     socket.broadcast
       .to(user.room)
-      .emit("welcome", { user: "Admin", text: `${user.name} está online!` });
+      .emit("welcome", { user: "Admin", message: `${user.name} está online!` });
     callBack(null);
  
     socket.on("sendMessage", ({ message }) => {
@@ -57,3 +71,4 @@ io.on("connection", (socket) => {
     console.log("A disconnection has been made");
   });
 });
+
