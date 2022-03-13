@@ -6,7 +6,7 @@ const { addUser, removeUser } = require("./utils/Chat/user");
 const { addMessage, getMessagesInRoom} = require("./utils/Chat/messages");
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: true }));
 
 const PORT = process.env.PORT || 4000;
 const INDEX = '/index.html';
