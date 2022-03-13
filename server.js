@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
 });
 
 
-
+/*
 app.get('/rooms/:roomId/messages', (req, res) => {
   console.log("messages")
   const messages = getMessagesInRoom(req.params.roomId);
@@ -76,4 +76,4 @@ app.get('/rooms/:roomId/messages', (req, res) => {
 app.listen(SERVERPORT, () => {
   // perform a database connection when server starts  
   console.log(`Server is running on port: ${SERVERPORT}`);
-});
+});*/
