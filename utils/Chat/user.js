@@ -11,5 +11,5 @@ exports.addUser = ({ id, name, room, userId }) => {
 
 exports.removeUser = (id) => {
   const index = users.findIndex((user) => user.id === id);
-  return users[index];
+  return users[index]; 
 };

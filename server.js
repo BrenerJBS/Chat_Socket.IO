@@ -7,6 +7,8 @@ const { addUser, removeUser } = require("./utils/Chat/user");
 const { addMessage, getMessagesInRoom} = require("./utils/Chat/messages");
 
 const PORT = process.env.PORT || 4000;
+const START_TYPING_MESSAGE_EVENT = "START_TYPING_MESSAGE_EVENT";
+const STOP_TYPING_MESSAGE_EVENT = "STOP_TYPING_MESSAGE_EVENT";
 
 const app = express();
 app.use(cors());
@@ -47,16 +49,32 @@ io.on("connection", (socket) => {
         message: message, 
       });
     });
-  });
-  socket.on("disconnect", () => {
-    const user = removeUser(socket.id);
-    console.log(user);
-    io.to(user.room).emit("message", {
-      user: "Admin",
-      message: `${user.name} saiu.`,
+    socket.on(START_TYPING_MESSAGE_EVENT, (data) => {
+      console.log(data)
+      io.in(user.room).emit(START_TYPING_MESSAGE_EVENT, data);
     });
-    socket.leave(user.room);
-    console.log("A disconnection has been made");
+    socket.on(STOP_TYPING_MESSAGE_EVENT, (data) => {
+      console.log("Parei de Digitar")
+      io.in(user.room).emit(STOP_TYPING_MESSAGE_EVENT, data);
+    });
+  });
+
+  
+
+  socket.on("disconnect", () => {
+
+    const user = removeUser(socket.id);  
+    if (user){
+      io.to(user.room).emit("message", {
+        user: "Admin",
+        message: `${user.name} saiu.`,
+      });
+      socket.leave(user.room);
+      console.log("A disconnection has been made");
+    }
+    
+    
+    
   });
 
 });
@@ -71,11 +89,3 @@ app.get('/rooms/:roomId/messages', (req, res) => {
   
   return res.json({ messages });
 });
-
-/*
-
-
-app.listen(SERVERPORT, () => {
-  // perform a database connection when server starts  
-  console.log(`Server is running on port: ${SERVERPORT}`);
-});*/
