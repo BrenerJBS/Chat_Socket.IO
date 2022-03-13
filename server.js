@@ -1,30 +1,35 @@
 require('dotenv').config()
 const express = require('express');
-const cors = require("cors");
+var cors = require('cors')
 const socketIO = require('socket.io');
 const { addUser, removeUser } = require("./utils/Chat/user");
 const { addMessage, getMessagesInRoom} = require("./utils/Chat/messages");
 
-const app = express();
-app.use(cors({ origin: true }));
-
-const PORT = process.env.PORT || 4000;
+const SOCKETPORT = process.env.SOCKETPORT || 4000;
+const SERVERPORT = process.env.SERVERPORT || 5000;
 const INDEX = '/index.html';
 
-app.get("/rooms/:roomId/messages", (req, res) => {
+const app = express()
+app.use(cors())
+app.use(express.json());
+
+//const routes = express.Router();
+
+app.get('/rooms/:roomId/messages', (req, res) => {
+  console.log("messages")
   const messages = getMessagesInRoom(req.params.roomId);
+  
   return res.json({ messages });
 });
 
-const SPORT = 5000
-app.listen(SPORT, () => {
+app.listen(SERVERPORT, () => {
   // perform a database connection when server starts  
-  console.log(`Server is running on port: ${SPORT}`);
+  console.log(`Server is running on port: ${SERVERPORT}`);
 });
 
 const server = express()
   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
-  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+  .listen(SOCKETPORT, () => console.log(`Listening on ${SOCKETPORT}`));
 
 const io = socketIO(server, {cors: {
   origin: "*",
@@ -71,5 +76,14 @@ io.on("connection", (socket) => {
     socket.leave(user.room);
     console.log("A disconnection has been made");
   });
+
 });
 
+
+/*
+
+
+app.listen(SERVERPORT, () => {
+  // perform a database connection when server starts  
+  console.log(`Server is running on port: ${SERVERPORT}`);
+});*/
