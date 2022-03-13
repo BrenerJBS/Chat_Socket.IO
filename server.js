@@ -5,8 +5,8 @@ const socketIO = require('socket.io');
 const { addUser, removeUser } = require("./utils/Chat/user");
 const { addMessage, getMessagesInRoom} = require("./utils/Chat/messages");
 
-const SOCKETPORT = process.env.SOCKETPORT || 4000;
-const SERVERPORT = process.env.SERVERPORT || 5000;
+const SOCKETPORT = process.env.SOCKETPORT;
+const SERVERPORT = process.env.SERVERPORT;
 const INDEX = '/index.html';
 
 const app = express()
