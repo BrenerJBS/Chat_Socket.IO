@@ -16,9 +16,10 @@ app.get("/rooms/:roomId/messages", (req, res) => {
   return res.json({ messages });
 });
 
-app.listen(5000, () => {
+const SPORT = 5000
+app.listen(SPORT, () => {
   // perform a database connection when server starts  
-  console.log(`Server is running on port: ${PORT}`);
+  console.log(`Server is running on port: ${SPORT}`);
 });
 
 const server = express()
