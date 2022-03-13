@@ -1,24 +1,42 @@
 require('dotenv').config()
-const http = require("http");
-const express = require("express");
-const cors = require("cors");
-const socketIo = require("socket.io");
+const express = require('express');
+var cors = require('cors')
+const socketIO = require('socket.io');
 const { addUser, removeUser } = require("./utils/Chat/user");
 const { addMessage, getMessagesInRoom} = require("./utils/Chat/messages");
 
-const PORT = process.env.PORT || 4000;
+const SOCKETPORT = process.env.PORT || 4000;
+const SERVERPORT = process.env.PORT || 5000;
+const INDEX = '/index.html';
 
-const app = express();
-app.use(cors());
+const app = express()
+app.use(cors())
+app.use(express.json());
 
-const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
+//const routes = express.Router();
+
+app.get('/rooms/:roomId/messages', (req, res) => {
+  console.log("messages")
+  const messages = getMessagesInRoom(req.params.roomId);
+  
+  return res.json({ messages });
 });
+
+app.listen(SERVERPORT, () => {
+  // perform a database connection when server starts  
+  console.log(`Server is running on port: ${SERVERPORT}`);
+});
+
+const server = express()
+  .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
+  .listen(SOCKETPORT, () => console.log(`Listening on ${SOCKETPORT}`));
+
+const io = socketIO(server, {cors: {
+  origin: "*",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["my-custom-header"],
+  credentials: true
+}});
 
 io.on("connection", (socket) => {
   socket.on("join", ({ name, room, userId }, callBack) => {
@@ -61,16 +79,6 @@ io.on("connection", (socket) => {
 
 });
 
-server.listen(PORT, () => {
-  console.log(`Escutando na porta ${PORT}`);
-});
-
-app.get('/rooms/:roomId/messages', (req, res) => {
-  console.log("messages")
-  const messages = getMessagesInRoom(req.params.roomId);
-  
-  return res.json({ messages });
-});
 
 /*
 
