@@ -11,11 +11,6 @@ const INDEX = '/index.html';
 
 const app = express()
 app.use(cors())
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
 
 const server = express()
   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
