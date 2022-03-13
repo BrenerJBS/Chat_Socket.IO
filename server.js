@@ -1,20 +1,15 @@
 require('dotenv').config()
 const express = require('express');
-//var cors = require('cors')
 const socketIO = require('socket.io');
 const { addUser, removeUser } = require("./utils/Chat/user");
-const { addMessage, getMessagesInRoom} = require("./utils/Chat/messages");
+const { addMessage} = require("./utils/Chat/messages");
 
-const SOCKETPORT = process.env.SOCKETPORT || 4000;
-//const SERVERPORT = process.env.SERVERPORT || 5000;
+const PORT = process.env.PORT || 4000;
 const INDEX = '/index.html';
-
-/*const app = express()
-app.use(cors())*/
 
 const server = express()
   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
-  .listen(SOCKETPORT, () => console.log(`Listening on ${SOCKETPORT}`));
+  .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 const io = socketIO(server, {cors: {
   origin: "*",
@@ -39,7 +34,7 @@ io.on("connection", (socket) => {
 
     socket.broadcast
       .to(user.room)
-      .emit("welcome", { user: "Admin", message: `${user.name} está online!` });
+      .emit("welcome", { user: "Admin", text: `${user.name} está online!` });
     callBack(null);
  
     socket.on("sendMessage", ({ message }) => {
@@ -61,19 +56,4 @@ io.on("connection", (socket) => {
     socket.leave(user.room);
     console.log("A disconnection has been made");
   });
-
 });
-
-
-/*
-app.get('/rooms/:roomId/messages', (req, res) => {
-  console.log("messages")
-  const messages = getMessagesInRoom(req.params.roomId);
-  
-  return res.json({ messages });
-});
-
-app.listen(SERVERPORT, () => {
-  // perform a database connection when server starts  
-  console.log(`Server is running on port: ${SERVERPORT}`);
-});*/
