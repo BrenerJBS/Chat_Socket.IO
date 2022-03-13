@@ -1,16 +1,16 @@
 require('dotenv').config()
 const express = require('express');
-var cors = require('cors')
+//var cors = require('cors')
 const socketIO = require('socket.io');
 const { addUser, removeUser } = require("./utils/Chat/user");
 const { addMessage, getMessagesInRoom} = require("./utils/Chat/messages");
 
 const SOCKETPORT = process.env.SOCKETPORT || 4000;
-const SERVERPORT = process.env.SERVERPORT || 5000;
+//const SERVERPORT = process.env.SERVERPORT || 5000;
 const INDEX = '/index.html';
 
-const app = express()
-app.use(cors())
+/*const app = express()
+app.use(cors())*/
 
 const server = express()
   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
