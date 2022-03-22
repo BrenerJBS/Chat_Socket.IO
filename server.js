@@ -3,8 +3,8 @@ const http = require("http");
 const express = require("express");
 const cors = require("cors");
 const socketIo = require("socket.io");
-const { addUser, removeUser } = require("./utils/Chat/user");
-const { addMessage, getMessagesInRoom} = require("./utils/Chat/messages");
+const { addUser, removeUser, getNumberUsersInRoom } = require("./utils/Chat/user");
+const { addMessage, getMessagesInRoom,saveMessagesDB} = require("./utils/Chat/messages");
 
 const PORT = process.env.PORT || 4000;
 const START_TYPING_MESSAGE_EVENT = "START_TYPING_MESSAGE_EVENT";
@@ -23,13 +23,13 @@ const io = socketIo(server, {
 });
 
 io.on("connection", (socket) => {
-  socket.on("join", ({ name, room, userId }, callBack) => {
-    const { user, error } = addUser({ id: socket.id, name, room, userId });
+  socket.on("join", ({ name, room, userid }, callBack) => {
+    const { user, error } = addUser({ id: socket.id, name, room, userid });
     if (error) return callBack(error);
-    console.log("socket.id = " + socket.id)
+    /*console.log("socket.id = " + socket.id)
     console.log("name = " + user.name)
     console.log("room = " + user.room)
-    console.log("userId = " + user.userId)
+    console.log("userId = " + user.userId)*/
     socket.join(user.room);
     /*socket.emit("message", {
       user: "Admin",
@@ -42,19 +42,17 @@ io.on("connection", (socket) => {
     callBack(null);
  
     socket.on("sendMessage", ({ message }) => {
-      addMessage(user.room, user.name, message, userId);
+      addMessage(user.room, user.name, message, userid);
       io.to(user.room).emit("message", {
         user: user.name,
-        userId: user.userId,
+        userid: user.userid,
         message: message, 
       });
     });
-    socket.on(START_TYPING_MESSAGE_EVENT, (data) => {
-      console.log(data)
+    socket.on(START_TYPING_MESSAGE_EVENT, (data) => {      
       io.in(user.room).emit(START_TYPING_MESSAGE_EVENT, data);
     });
-    socket.on(STOP_TYPING_MESSAGE_EVENT, (data) => {
-      console.log("Parei de Digitar")
+    socket.on(STOP_TYPING_MESSAGE_EVENT, (data) => {      
       io.in(user.room).emit(STOP_TYPING_MESSAGE_EVENT, data);
     });
   });
@@ -70,9 +68,15 @@ io.on("connection", (socket) => {
         message: `${user.name} saiu.`,
       });
       socket.leave(user.room);
+
+      if (getNumberUsersInRoom(user.room) === 0){
+        saveMessagesDB(user.room)
+      }
+
       console.log("A disconnection has been made");
     }
-    
+
+  /*Se sair e for algum erro ou não reconhecer, fazer backup de tudo*/
     
     
   });
@@ -83,9 +87,8 @@ server.listen(PORT, () => {
   console.log(`Escutando na porta ${PORT}`);
 });
 
-app.get('/rooms/:roomId/messages', (req, res) => {
-  console.log("messages")
-  const messages = getMessagesInRoom(req.params.roomId);
+app.get('/rooms/:roomid/messages', (req, res) => {  
+  const messages = getMessagesInRoom(req.params.roomid);
   
   return res.json({ messages });
 });
