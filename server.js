@@ -24,12 +24,13 @@ const io = socketIo(server, {
 
 io.on("connection", (socket) => {
   socket.on("join", ({ name, room, userid }, callBack) => {
+    
     const { user, error } = addUser({ id: socket.id, name, room, userid });
     if (error) return callBack(error);
-    /*console.log("socket.id = " + socket.id)
+    console.log("socket.id = " + socket.id)
     console.log("name = " + user.name)
     console.log("room = " + user.room)
-    console.log("userId = " + user.userId)*/
+    console.log("userid = " + user.userid)
     socket.join(user.room);
     /*socket.emit("message", {
       user: "Admin",
