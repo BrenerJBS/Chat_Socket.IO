@@ -3,8 +3,8 @@ const axios = require('axios')
 
 let messages = [];
 
-const addMessage = (room, name, message, userid) => {  
-  const msg = { id: uuid.v4(), room, name, message, userid };
+const addMessage = (room, name, message, userid, readed) => {  
+  const msg = { id: uuid.v4(), room, name, message, userid, readed };
   messages.push(msg);  
 }; 
 
@@ -21,13 +21,24 @@ const removeAllRoomMessages = (room) => {
 
 const getMessage = (id) => messages.find((message) => message.id === id);
 
-const getMessagesInRoom = (room) =>
-  messages.filter((message) => message.room === room);
+const getMessagesInRoom = (room, user) => {
+  console.log('getMessagesInRoom ' + user)
+  messages.map((message) => {
+    if (message.room === room && message.userid !== user){
+      console.log(message)
+      return message.readed = true
+    }
+  })
+  console.log(messages)
+  
+  return messages.filter((message) => message.room === room);
+}
+ 
+const saveMessagesDB = async (room, user) => {          
+  try {    
 
-const saveMessagesDB = async (room) => {          
-  try {
     const messages =  await axios.post('https://onledu.herokuapp.com/api/chat/saveMessagesDB', {
-      messages: getMessagesInRoom(room)
+      messages: getMessagesInRoom(room, user)
     })
     if (messages)
       removeAllRoomMessages(room)

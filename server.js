@@ -27,10 +27,10 @@ io.on("connection", (socket) => {
     
     const { user, error } = addUser({ id: socket.id, name, room, userid });
     if (error) return callBack(error);
-    console.log("socket.id = " + socket.id)
-    console.log("name = " + user.name)
-    console.log("room = " + user.room)
-    console.log("userid = " + user.userid)
+    //console.log("socket.id = " + socket.id)
+    //console.log("name = " + user.name)
+    //console.log("room = " + user.room)
+    //console.log("userid = " + user.userid)
     socket.join(user.room);
     /*socket.emit("message", {
       user: "Admin",
@@ -43,7 +43,8 @@ io.on("connection", (socket) => {
     callBack(null);
  
     socket.on("sendMessage", ({ message }) => {
-      addMessage(user.room, user.name, message, userid);
+      console.log(user.name + " enviou uma mensagem " + message)
+      addMessage(user.room, user.name, message, userid, false);
       io.to(user.room).emit("message", {
         user: user.name,
         userid: user.userid,
@@ -71,7 +72,7 @@ io.on("connection", (socket) => {
       socket.leave(user.room);
 
       if (getNumberUsersInRoom(user.room) === 0){
-        saveMessagesDB(user.room)
+        saveMessagesDB(user.room, user.userid)
       }
 
       console.log("A disconnection has been made");
@@ -88,8 +89,9 @@ server.listen(PORT, () => {
   console.log(`Escutando na porta ${PORT}`);
 });
 
-app.get('/rooms/:roomid/messages', (req, res) => {  
-  const messages = getMessagesInRoom(req.params.roomid);
+app.get('/rooms/:roomid/messages/:userid', (req, res) => {  
+  console.log("app.get userid " + req.params.userid)
+  const messages = getMessagesInRoom(req.params.roomid, req.params.userid );
   
   return res.json({ messages });
 });
