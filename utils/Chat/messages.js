@@ -3,9 +3,14 @@ const axios = require('axios')
 
 let messages = [];
 
-const addMessage = (room, name, message, userid, readed) => {  
-  const msg = { id: uuid.v4(), room, name, message, userid, readed };
+const addMessage = (id, room, name, message, userid, readed) => {  
+  const msg = { id, room, name, message, userid, readed };
   messages.push(msg);  
+}; 
+
+const readMessage = (id) => {  
+  const index = messages.findIndex((message) => message.id === id);
+  messages[index].readed = true; 
 }; 
 
 const removeMessage = (id) => {
@@ -50,4 +55,4 @@ const saveMessagesDB = async (room, user) => {
 }
 
 
-module.exports = { addMessage, removeMessage, getMessage, getMessagesInRoom, saveMessagesDB };
+module.exports = { addMessage, removeMessage, getMessage, getMessagesInRoom, saveMessagesDB , readMessage };

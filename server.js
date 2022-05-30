@@ -3,8 +3,9 @@ const http = require("http");
 const express = require("express");
 const cors = require("cors");
 const socketIo = require("socket.io");
+const uuid = require('uuid');
 const { addUser, removeUser, getNumberUsersInRoom } = require("./utils/Chat/user");
-const { addMessage, getMessagesInRoom,saveMessagesDB} = require("./utils/Chat/messages");
+const { addMessage, getMessagesInRoom,saveMessagesDB, readMessage} = require("./utils/Chat/messages");
 
 const PORT = process.env.PORT || 4000;
 const START_TYPING_MESSAGE_EVENT = "START_TYPING_MESSAGE_EVENT";
@@ -43,14 +44,23 @@ io.on("connection", (socket) => {
     callBack(null);
  
     socket.on("sendMessage", ({ message }) => {
-      console.log(user.name + " enviou uma mensagem " + message)
-      addMessage(user.room, user.name, message, userid, false);
+      const id = uuid.v4();
+      console.log(user.name + " enviou uma mensagem " + id + " - " + message)
+      addMessage(id, user.room, user.name, message, userid, false);
       io.to(user.room).emit("message", {
         user: user.name,
         userid: user.userid,
         message: message, 
+        messageId: id,
+        readed: false
       });
     });
+
+    socket.on("readed", (message) => {           
+      readMessage(message.messageId)
+      socket.to(user.room).emit("messageReaded", message);
+    });
+
     socket.on(START_TYPING_MESSAGE_EVENT, (data) => {      
       io.in(user.room).emit(START_TYPING_MESSAGE_EVENT, data);
     });
