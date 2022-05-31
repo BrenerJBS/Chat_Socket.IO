@@ -5,7 +5,7 @@ const cors = require("cors");
 const socketIo = require("socket.io");
 const uuid = require('uuid');
 const { addUser, removeUser, getNumberUsersInRoom } = require("./utils/Chat/user");
-const { addMessage, getMessagesInRoom,saveMessagesDB, readMessage} = require("./utils/Chat/messages");
+const { addMessage, getAndReadMessagesInRoom,saveMessagesDB, readMessage} = require("./utils/Chat/messages");
 
 const PORT = process.env.PORT || 4000;
 const START_TYPING_MESSAGE_EVENT = "START_TYPING_MESSAGE_EVENT";
@@ -61,18 +61,28 @@ io.on("connection", (socket) => {
       socket.to(user.room).emit("messageReaded", message);
     });
 
+    socket.on("readedDB", (message) => {   
+      console.log('socket.on("readedDB", (message)')             
+      message.readed = true
+      console.log(message)         
+      socket.to(user.room).emit("messageReadedDB", message);
+    });
+
+    socket.on("getAndReadMessagesInRoom", ({userid, roomid}) => {           
+      console.log('getAndReadMessagesInRoom')
+      const messagesInRoom = getAndReadMessagesInRoom(roomid, userid );
+      io.to(user.room).emit("setMessageInRoom", messagesInRoom);
+    });
+
     socket.on(START_TYPING_MESSAGE_EVENT, (data) => {      
       io.in(user.room).emit(START_TYPING_MESSAGE_EVENT, data);
     });
     socket.on(STOP_TYPING_MESSAGE_EVENT, (data) => {      
       io.in(user.room).emit(STOP_TYPING_MESSAGE_EVENT, data);
     });
-  });
-
-  
+  });  
 
   socket.on("disconnect", () => {
-
     const user = removeUser(socket.id);  
     if (user){
       io.to(user.room).emit("message", {
@@ -87,21 +97,19 @@ io.on("connection", (socket) => {
 
       console.log("A disconnection has been made");
     }
-
-  /*Se sair e for algum erro ou não reconhecer, fazer backup de tudo*/
-    
-    
+  /*Se sair e for algum erro ou não reconhecer, fazer backup de tudo*/       
   });
-
 });
 
 server.listen(PORT, () => {
   console.log(`Escutando na porta ${PORT}`);
 });
 
-app.get('/rooms/:roomid/messages/:userid', (req, res) => {  
-  console.log("app.get userid " + req.params.userid)
-  const messages = getMessagesInRoom(req.params.roomid, req.params.userid );
-  
+/*app.get('/rooms/:roomid/messages/:userid', (req, res) => {  
+  console.log("app.get('/rooms/:roomid/messages/:userid'")
+  console.log(io.socket)
+  //const messages = getMessagesInRoom(req.params.roomid, req.params.userid );
+  const messages = getAndReadMessagesInRoom(req.params.roomid, req.params.userid );
+
   return res.json({ messages });
-});
+});*/

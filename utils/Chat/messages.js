@@ -29,12 +29,21 @@ const getMessage = (id) => messages.find((message) => message.id === id);
 const getMessagesInRoom = (room, user) => {
   console.log('getMessagesInRoom ' + user)
   messages.map((message) => {
-    if (message.room === room && message.userid !== user){
-      console.log(message)
+    if (message.room === room && message.userid !== user){      
       return message.readed = true
     }
   })
-  console.log(messages)
+  
+  return messages.filter((message) => message.room === room);
+}
+
+const getAndReadMessagesInRoom = (room, user) => {
+  console.log('getAndReadMessagesInRoom ' + user)
+  messages.map((message) => {
+    if (message.room === room && message.userid !== user){      
+      return message.readed = true
+    }
+  })
   
   return messages.filter((message) => message.room === room);
 }
@@ -55,4 +64,4 @@ const saveMessagesDB = async (room, user) => {
 }
 
 
-module.exports = { addMessage, removeMessage, getMessage, getMessagesInRoom, saveMessagesDB , readMessage };
+module.exports = { addMessage, removeMessage, getMessage, getMessagesInRoom, getAndReadMessagesInRoom, saveMessagesDB , readMessage };
